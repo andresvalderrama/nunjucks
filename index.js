@@ -1,38 +1,30 @@
 const path = require('path')
 
-const Koa = require('koa')
-const logger = require('koa-logger')
-const views = require('koa-views')
-const Router = require('koa-router')
+const express = require('express')
 const nunjucks = require('nunjucks')
+const i18n = require('i18n')
 
-const app = module.exports = new Koa()
-const router = new Router()
-const env = new nunjucks.Environment(new nunjucks.FileSystemLoader('views/partials'), {
+const app = express()
+
+i18n.configure({
+  locales: ['en', 'de', 'es'],
+  directory: path.resolve(__dirname, 'locales'),
+  defaultLocale: 'de',
+  queryParameter: 'lang'
+})
+app.use(i18n.init)
+
+app.set('view engine', 'njk')
+nunjucks.configure(path.resolve(__dirname, 'views'), {
   watch: true,
-  noCache: true
+  autoescape: true,
+  express: app
 })
 
-app.use(logger())
-
-app.use(views(path.resolve(__dirname, 'views'), {
-  extension: 'njk',
-  map: { njk: 'nunjucks' },
-  options: {
-    nunjucksEnv: env
-  }
-}))
-
-router.get('/', async (ctx, next) => {
-  ctx.state = { title: 'my title', author: 'queckezz' }
-  await ctx.render('index')
+app.get('/', (req, res) => {
+  res.render('index', { title: 'andres' })
 })
 
-app
-  .use(router.routes())
-  .use(router.allowedMethods())
-
-if (!module.parent) app.listen(3000)
-
-// https://github.com/chriscoyier/playing_with_nunjucks/tree/master/5
-// npm install --save koa-nunjucks-2
+if (!module.parent) {
+  app.listen(3000, () => console.log('Listening on port 3000'))
+}

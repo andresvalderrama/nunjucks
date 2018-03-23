@@ -1,3 +1,7 @@
-{% extends "layout.njk" %}
+{% extends "partials/layout.njk" %}
 
-{% block content %}index.njk{% endblock %}
+{% block content %}
+<article class="container">
+  {{ __('hello') }}
+</article>
+{% endblock %}
